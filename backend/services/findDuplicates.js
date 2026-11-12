@@ -47,3 +47,7 @@ function findDuplicates(newTitle, newDescription, recentTickets, threshold = 0.3
 }
 
 module.exports = findDuplicates;
+
+//*We break both texts into sets of meaningful words (stripping common filler words like "the", "is", "a")
+//Jaccard similarity = (words they share) ÷ (total unique words across both) — a standard, simple way to measure text overlap without needing embeddings or an API
+//threshold = 0.3 means "at least 30% word overlap" counts as a likely duplicate — tunable */

@@ -1,25 +1,12 @@
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
+const app = require('./app');
 const connectDB = require('./config/db');
-const userRoutes = require('./routes/userRoutes');
-const ticketRoutes = require('./routes/ticketRoutes');
-
-const app = express();
 
 connectDB();
 
-app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
-app.use(express.json());
-
-app.get('/', (req, res) => {
-  res.send('OpsDesk API is running');
-});
-
-app.use('/api/users', userRoutes);
-app.use('/api/tickets', ticketRoutes);
-
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

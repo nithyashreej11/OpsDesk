@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
+const validateObjectId = require('../middleware/validateObjectId');
 const {
   createTicket,
   getAllTickets,
@@ -21,5 +22,10 @@ router.get('/:id', authMiddleware, getTicketById);
 router.patch('/:id/status', authMiddleware, roleMiddleware(['Engineer', 'Manager', 'Admin']), updateTicketStatus);
 router.patch('/:id/assign', authMiddleware, roleMiddleware(['Manager', 'Admin']), assignTicket);
 router.delete('/:id', authMiddleware, roleMiddleware(['Admin']), deleteTicket);
+
+router.get('/:id', validateObjectId, authMiddleware, getTicketById);
+router.patch('/:id/status', validateObjectId, authMiddleware, roleMiddleware(['Engineer', 'Manager', 'Admin']), updateTicketStatus);
+router.patch('/:id/assign', validateObjectId, authMiddleware, roleMiddleware(['Manager', 'Admin']), assignTicket);
+router.delete('/:id', validateObjectId, authMiddleware, roleMiddleware(['Admin']), deleteTicket);
 
 module.exports = router;

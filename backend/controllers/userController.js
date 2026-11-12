@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { isNonEmptyString } = require('../utils/validate');
 
 function normalizeEmail(email) {
   return typeof email === 'string' ? email.trim().toLowerCase() : '';
@@ -14,19 +15,22 @@ function generateToken(user) {
 
 exports.registerUser = async (req, res) => {
   try {
-    const { name, password, role } = req.body;
+    const { name, password } = req.body;
     const email = normalizeEmail(req.body.email);
-    console.log('REGISTER REQUEST RECEIVED:', { name, email, password, role });
+   // console.log('REGISTER REQUEST RECEIVED:', { name, email, password, role });
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: 'Name, email, and password are required' });
-    }
+    if (!isNonEmptyString(name, 100) || !email || !isNonEmptyString(password, 72)) {
+  return res.status(400).json({ success: false, message: 'Valid name, email and password (max 72 characters) are required' });
+}
 
     const existingUser = await User.findOne({ email });
-    console.log('EXISTING USER CHECK RESULT:', existingUser);
+   // console.log('EXISTING USER CHECK RESULT:', existingUser);
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
+    if (typeof password !== 'string' || password.length < 8) {
+  return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
+}
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -34,7 +38,7 @@ exports.registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: role && ['Reporter', 'Engineer', 'Manager', 'Admin'].includes(role) ? role : 'Reporter',
+      role: 'Reporter',
     });
 
     const token = generateToken(user);
@@ -54,7 +58,7 @@ exports.loginUser = async (req, res) => {
     const { password } = req.body;
     const email = normalizeEmail(req.body.email);
 
-    if (!email || !password) {
+    if (!email || typeof password !== 'string' || !password) {
       return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
